@@ -18,14 +18,16 @@ model Graph {
 model Node {
   id      String @id @default(cuid())
   label   String
+  type    String @default("concept")
   graphId String
   graph   Graph  @relation(fields: [graphId], references: [id], onDelete: Cascade)
 
   @@index([graphId])
+  @@unique([label, graphId])
 }
 
 model Edge {
-  id      String @id @default(cuid())
+  id      String @id
   source  String
   target  String
   label   String
@@ -33,4 +35,5 @@ model Edge {
   graph   Graph  @relation(fields: [graphId], references: [id], onDelete: Cascade)
 
   @@index([graphId])
+  @@unique([source, label, target, graphId])
 }

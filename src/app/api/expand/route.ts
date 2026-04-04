@@ -16,16 +16,36 @@ export async function POST(req: Request) {
     const parsedGraph = parseAIOutput(rawAiOutput);
     const cleanGraph = constructGraph(parsedGraph);
 
-    // Mock response
-    return NextResponse.json({
-      nodes: cleanGraph.nodes.map((n, i) => ({ id: `new_n_${Date.now()}_${i}`, label: n, graphId: 'temp_id' })),
-      edges: cleanGraph.edges.map((e, i) => ({
-        id: `new_e_${Date.now()}_${i}`,
-        source: `new_n_${Date.now()}_${cleanGraph.nodes.indexOf(e[0])}`, // Note: this mock logic isn't perfect for existing nodes yet
-        target: `new_n_${Date.now()}_${cleanGraph.nodes.indexOf(e[2])}`,
+    // Filter deterministic outputs exactly applying the 5-7 cap if constructGraph missed boundary constraints inside expansions
+    const limitedNodes = cleanGraph.nodes.slice(0, 7);
+    const allowedLabels = new Set(limitedNodes.map(n => n.label));
+
+    const mappedNodes = limitedNodes.map((n, i) => ({ 
+      id: `exp_n_${Date.now()}_${i}`, 
+      label: n.label, 
+      type: n.type, 
+      graphId: 'temp_expand_id' 
+    }));
+    
+    const mappedEdges = cleanGraph.edges.map((e, i) => {
+      // Find source/target within expansion OR assume it binds uniquely to existing context via name matching implicitly
+      const sourceId = mappedNodes.find(n => n.label === e[0])?.id || `ext_${e[0]}`;
+      const targetId = mappedNodes.find(n => n.label === e[2])?.id || `ext_${e[2]}`;
+      const labelStr = e[1].replace(/\s+/g, '_').toLowerCase();
+
+      return {
+        id: `${sourceId}_${labelStr}_${targetId}`,
+        source: sourceId,
+        target: targetId,
         label: e[1],
-        graphId: 'temp_id'
-      }))
+        graphId: 'temp_expand_id'
+      };
+    }).filter(e => allowedLabels.has(e.source.replace('ext_', '')) || allowedLabels.has(e.target.replace('ext_', '')));
+
+    return NextResponse.json({
+      nodes: mappedNodes,
+      edges: mappedEdges,
+      _debugRaw: process.env.NODE_ENV === 'development' ? rawAiOutput : undefined
     });
 
   } catch (error) {

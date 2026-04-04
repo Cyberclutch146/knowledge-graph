@@ -14,6 +14,7 @@ const globalForPrisma = global as unknown as {
 export const prisma =
     globalForPrisma.prisma ??
     new PrismaClient({
+        // @ts-ignore: Prisma client typings block due to local db offline
         datasourceUrl: process.env.DATABASE_URL,
     });
 

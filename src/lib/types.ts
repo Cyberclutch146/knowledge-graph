@@ -1,7 +1,12 @@
-export type NodeOutput = string;
+export interface NodeOutput {
+  label: string;
+  type: string;
+}
+
 export type EdgeOutput = [string, string, string];
 
 export interface GraphOutput {
+  title?: string;
   nodes: NodeOutput[];
   edges: EdgeOutput[];
 }
@@ -9,6 +14,7 @@ export interface GraphOutput {
 export interface AppNode {
   id: string;
   label: string;
+  type: string;
   graphId: string;
 }
 

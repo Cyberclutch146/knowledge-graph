@@ -11,23 +11,37 @@ export function parseAIOutput(rawOutput: string): GraphOutput {
     
     const parsed = JSON.parse(cleaned);
     
-    // Type validation
     if (!Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) {
       throw new Error('Invalid graph structure: nodes and edges must be arrays');
     }
     
-    const nodes = parsed.nodes.filter((n: any) => typeof n === 'string');
+    // Validate object formats { label, type }
+    const nodes = parsed.nodes.filter((n: any) => 
+      typeof n === 'object' && n !== null && typeof n.label === 'string' && typeof n.type === 'string'
+    );
+    
     const edges = parsed.edges.filter((e: any) => 
       Array.isArray(e) && e.length === 3 && e.every((part: any) => typeof part === 'string')
     );
     
-    return { nodes, edges };
-  } catch (error) {
-    console.error('Failed to parse AI output:', error);
-    // Return safe fallback
+    // Collect valid graph output
+    return { 
+      title: parsed.title && typeof parsed.title === 'string' ? parsed.title : 'Generated Graph',
+      nodes, 
+      edges 
+    };
+  } catch (error: any) {
+    console.error('[VALIDATION ERROR] Failed to parse AI output:', error.message);
+    // Safe deterministic fallback graph
     return {
-      nodes: ['Concept A', 'Concept B'],
-      edges: [['Concept A', 'relates to', 'Concept B']]
+      title: "Fallback Graph",
+      nodes: [
+        { label: "Concept A", type: "concept" },
+        { label: "Concept B", type: "concept" }
+      ],
+      edges: [
+        ["Concept A", "relates to", "Concept B"]
+      ]
     };
   }
 }

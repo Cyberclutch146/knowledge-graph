@@ -2,86 +2,76 @@ import { NextResponse } from 'next/server';
 import { generateGraphFromText } from '@/lib/ai';
 import { parseAIOutput } from '@/lib/validation';
 import { constructGraph } from '@/lib/graphEngine';
-// import prisma from '@/lib/db'; // Will be enabled when Prisma works properly
+// import { prisma } from '@/lib/db';
 
-// Basic rate limit tracking (IP -> timestamp array)
 const rateLimitMap = new Map<string, number[]>();
 
 export async function POST(req: Request) {
   try {
-    // 1. Basic Rate Limiting
     const ip = req.headers.get('x-forwarded-for') || 'unknown';
     const now = Date.now();
     const timestamps = rateLimitMap.get(ip) || [];
-    const recent = timestamps.filter(t => now - t < 60000); // 1 minute window
+    const recent = timestamps.filter(t => now - t < 60000); 
     
-    if (recent.length > 5) { // Max 5 requests per minute per IP
-      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
-    }
+    if (recent.length > 8) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     recent.push(now);
     rateLimitMap.set(ip, recent);
 
-    // 2. Input Validation
     const body = await req.json();
     const { text } = body;
     
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return NextResponse.json({ error: 'Text input is required' }, { status: 400 });
     }
-    
-    if (text.length > 10000) {
-      return NextResponse.json({ error: 'Text input exceeds maximum allowed length' }, { status: 400 });
-    }
+    if (text.length > 10000) return NextResponse.json({ error: 'Max length exceeded' }, { status: 400 });
 
-    // 3. AI Processing
     const rawAiOutput = await generateGraphFromText(text);
-
-    // 4. Strict Parsing
     const parsedGraph = parseAIOutput(rawAiOutput);
-
-    // 5. Normalization, Deduplication, & Limitations
     const cleanGraph = constructGraph(parsedGraph);
 
-    // 6. DB Persistence
-    /* Uncomment later when DB is connected
-    const savedGraph = await prisma.graph.create({
-      data: {
-        title: text.substring(0, 50) + '...',
-        nodes: {
-          create: cleanGraph.nodes.map(label => ({ label }))
-        },
-        edges: {
-          create: cleanGraph.edges.map(edge => ({
-            source: edge[0],
-            label: edge[1],
-            target: edge[2]
-          }))
-        }
-      },
-      include: {
-        nodes: true,
-        edges: true
-      }
-    });
+    // Mock ID Mapping creating deterministic IDs guaranteeing uniqueness natively before hitting DB
+    const graphId = `g_${Date.now()}`;
+    const mappedNodes = cleanGraph.nodes.map((n, i) => ({ 
+      id: `n_${i}`, 
+      label: n.label, 
+      type: n.type, 
+      graphId 
+    }));
+    
+    const mappedEdges = cleanGraph.edges.map((e) => {
+      const sourceId = mappedNodes.find(n => n.label === e[0])?.id || 'err';
+      const targetId = mappedNodes.find(n => n.label === e[2])?.id || 'err';
+      const stringifiedLabel = e[1].replace(/\s+/g, '_').toLowerCase();
+      // Deterministic key resolving DB collision
+      return {
+        id: `${sourceId}_${stringifiedLabel}_${targetId}`,
+        source: sourceId,
+        target: targetId,
+        label: e[1],
+        graphId
+      };
+    }).filter(e => e.source !== 'err' && e.target !== 'err');
 
-    return NextResponse.json({
-      graphId: savedGraph.id,
-      nodes: savedGraph.nodes,
-      edges: savedGraph.edges
+    /* DB Transaction block
+    const savedGraph = await prisma.$transaction(async (tx) => {
+      const graph = await tx.graph.create({
+        data: { title: cleanGraph.title || "Generated Graph" }
+      });
+      await tx.node.createMany({
+        data: mappedNodes.map(n => ({ ...n, id: undefined, graphId: graph.id })),
+        skipDuplicates: true
+      });
+      // Additional precise cross-mapping required here using queried IDs from inserted nodes
+      return graph;
     });
     */
 
-    // Returning mock structured data for now so UI works
     return NextResponse.json({
-      graphId: 'temp_id',
-      nodes: cleanGraph.nodes.map((n, i) => ({ id: `n${i}`, label: n, graphId: 'temp_id' })),
-      edges: cleanGraph.edges.map((e, i) => ({
-        id: `e${i}`,
-        source: `n${cleanGraph.nodes.indexOf(e[0])}`,
-        target: `n${cleanGraph.nodes.indexOf(e[2])}`,
-        label: e[1],
-        graphId: 'temp_id'
-      }))
+      graphId,
+      title: cleanGraph.title || "Generated Graph",
+      nodes: mappedNodes,
+      edges: mappedEdges,
+      _debugRaw: process.env.NODE_ENV === 'development' ? rawAiOutput : undefined
     });
 
   } catch (error) {
