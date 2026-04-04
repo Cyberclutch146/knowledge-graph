@@ -33,20 +33,25 @@ async function fetchWithTimeoutAndRetry(prompt: string, isRetry = false): Promis
   }
 }
 
-export async function generateGraphFromText(text: string): Promise<string> {
-  const prompt = `You are a strict data extractor. Extract a knowledge graph from the given text. 
+export async function generateGraphFromText(text: string, mode: 'strict' | 'creative' = 'strict'): Promise<string> {
+  const isStrict = mode === 'strict';
+  
+  const prompt = `[Prompt v2 - Mode: ${isStrict ? 'Strict' : 'Creative'}]
+You are an expert systems architect extracting a knowledge graph from text.
+
 Rules:
 1. Max 12-15 nodes. Do not exceed this.
 2. No duplicate concepts.
-3. Node "type" must be one of: 'protocol', 'concept', 'system', 'component'.
+3. Node "type" must be strictly one of: 'protocol', 'concept', 'system', 'component'.
 4. Avoid vague relationships like "is" or "related to". Use strong verbs like "defines", "uses", "connects", "operates over".
 5. Combine redundant edges holding the same semantic meaning.
 6. Ensure ALL nodes are connected. No floating nodes.
-7. Generate a short contextual 'title' for the graph.
+${isStrict 
+? "7. ONLY extract explicit, factual entities clearly stated. Do not hypothesize." 
+: "7. Extract explicit entities, but also infer deeper contextual architectures or abstract lateral concepts safely."}
 
 Return ONLY valid JSON in this exact format:
 {
-  "title": "Short descriptive title",
   "nodes": [
     { "label": "Concept A", "type": "concept" },
     { "label": "System X", "type": "system" }
@@ -67,7 +72,8 @@ ${text}`;
 }
 
 export async function expandNodeFromContext(nodeLabel: string, existingNodes: string[], existingEdges: string[]): Promise<string> {
-  const prompt = `You are a strict data extractor. Expand the knowledge graph by identifying exactly 5-7 NEW tightly related concepts surrounding "${nodeLabel}".
+  const prompt = `[Prompt v2 - Expansion]
+You are a strict data extractor. Expand the knowledge graph by identifying exactly 5-7 NEW tightly related concepts surrounding "${nodeLabel}".
 Rules:
 1. DO NOT duplicate any nodes currently in the Existing Nodes array.
 2. Ensure relationships dynamically connect the new concepts back to "${nodeLabel}" or other existing concepts.
