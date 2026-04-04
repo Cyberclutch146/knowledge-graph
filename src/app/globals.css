@@ -1,19 +1,42 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: var(--font-geist-sans);
+  --color-dashboard-bg: #03040a;
+  --color-dashboard-card: #0c101c;
+  --color-dashboard-card-hover: #111626;
+  --color-dashboard-accent: #3b82f6; 
+  --color-dashboard-highlight: #8b5cf6;
+  --color-dashboard-border: rgba(255, 255, 255, 0.05);
+
+  --font-sans: "Inter", var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
 :root {
-  --background: #09090b; /* zinc-950 */
-  --foreground: #fafafa;
+  --background: #03040a;
+  --foreground: #f8fafc;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Scrollbar Tweaks */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }
 
 /* React flow custom dark mode styling adjustments */
@@ -26,5 +49,14 @@ body {
 }
 
 .react-flow__minimap {
-  background-color: #18181b !important; /* zinc-900 */
+  background-color: #0c101c !important;
 }
+
+/* Custom Utilities */
+.glass-panel {
+  background: rgba(12, 16, 28, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-dashboard-border);
+}
+

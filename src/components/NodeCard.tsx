@@ -7,22 +7,22 @@ import clsx from 'clsx';
 import { useGraphStore } from '@/store/useGraphStore';
 
 const TYPE_COLORS: Record<string, string> = {
-  concept: "border-emerald-500/50 shadow-emerald-500/10 hover:border-emerald-400 hover:shadow-emerald-500/30 text-emerald-100 bg-emerald-950/40",
-  system: "border-blue-500/50 shadow-blue-500/10 hover:border-blue-400 hover:shadow-blue-500/30 text-blue-100 bg-blue-950/40",
-  protocol: "border-violet-500/50 shadow-violet-500/10 hover:border-violet-400 hover:shadow-violet-500/30 text-violet-100 bg-violet-950/40",
-  component: "border-amber-500/50 shadow-amber-500/10 hover:border-amber-400 hover:shadow-amber-500/30 text-amber-100 bg-amber-950/40",
-  default: "border-zinc-500/50 shadow-zinc-500/10 hover:border-zinc-400 hover:shadow-zinc-500/30 text-zinc-100 bg-zinc-900/40"
+  concept: "border-cyan-500/30 shadow-cyan-500/10 hover:border-cyan-400 hover:shadow-cyan-500/30 text-cyan-100 bg-[#0c1020]/90",
+  system: "border-blue-500/30 shadow-blue-500/10 hover:border-blue-400 hover:shadow-blue-500/30 text-blue-100 bg-[#0c1020]/90",
+  protocol: "border-violet-500/30 shadow-violet-500/10 hover:border-violet-400 hover:shadow-violet-500/30 text-violet-100 bg-[#0c1020]/90",
+  component: "border-pink-500/30 shadow-pink-500/10 hover:border-pink-400 hover:shadow-pink-500/30 text-pink-100 bg-[#0c1020]/90",
+  default: "border-zinc-500/30 shadow-zinc-500/10 hover:border-zinc-400 hover:shadow-zinc-500/30 text-zinc-100 bg-[#0c1020]/90"
 };
 
 const TYPE_BADGE_COLORS: Record<string, string> = {
-  concept: "bg-emerald-500/20 text-emerald-400 border-emerald-500/20",
-  system: "bg-blue-500/20 text-blue-400 border-blue-500/20",
-  protocol: "bg-violet-500/20 text-violet-400 border-violet-500/20",
-  component: "bg-amber-500/20 text-amber-400 border-amber-500/20",
-  default: "bg-zinc-500/20 text-zinc-400 border-zinc-500/20"
+  concept: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+  system: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  protocol: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+  component: "bg-pink-500/10 text-pink-400 border-pink-500/20",
+  default: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
 };
 
-const NodeCard = ({ data, id }: NodeProps) => {
+const NodeCard = ({ data }: NodeProps) => {
   const { expandNode, loading, searchQuery } = useGraphStore();
   const label = data.label as string;
   const rawType = (data.type as string)?.toLowerCase() || 'default';

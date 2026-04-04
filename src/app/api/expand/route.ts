@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       graphId: 'pending'
     }));
     
-    const mappedEdges = parsedGraph.edges.map((e) => {
+    const mappedEdgesRaw = parsedGraph.edges.map((e) => {
       const sourceId = mappedNodes.find(n => n.label === e[0])?.id || `ext_${e[0]}`;
       const targetId = mappedNodes.find(n => n.label === e[2])?.id || `ext_${e[2]}`;
       const stringifiedLabel = e[1].replace(/\s+/g, '_').toLowerCase();
@@ -57,6 +57,13 @@ export async function POST(req: Request) {
         graphId: 'pending'
       };
     }).filter(e => allowedLabels.has(e.source.replace('ext_', '')) || allowedLabels.has(e.target.replace('ext_', '')));
+
+    const edgeSeen = new Set<string>();
+    const mappedEdges = mappedEdgesRaw.filter(e => {
+        if(edgeSeen.has(e.id)) return false;
+        edgeSeen.add(e.id);
+        return true;
+    });
 
     return Response.json({
       success: true,

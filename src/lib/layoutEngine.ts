@@ -1,5 +1,4 @@
 import dagre from 'dagre';
-import { AppNode, AppEdge } from './types';
 
 export function getLayoutedElements(nodes: any[], edges: any[], direction = 'LR') {
   const dagreGraph = new dagre.graphlib.Graph();

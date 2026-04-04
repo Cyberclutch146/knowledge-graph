@@ -25,8 +25,6 @@ const nodeTypes = { customNode: NodeCard };
 
 function CanvasCore() {
   const flowRef = useRef<HTMLDivElement>(null);
-  const { zoomTo } = useReactFlow();
-  
   const { title, nodes: storeNodes, edges: storeEdges, loading, searchQuery, focusMode } = useGraphStore();
 
   const { layoutedNodes, layoutedEdges } = useMemo(() => {

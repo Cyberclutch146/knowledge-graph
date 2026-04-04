@@ -65,6 +65,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
 
   expandNode: async (nodeLabel) => {
     const state = get();
+    if (state.loading) return; // Prevent race conditions
     set({ loading: true, error: null });
 
     try {

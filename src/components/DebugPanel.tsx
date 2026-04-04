@@ -10,9 +10,7 @@ export default function DebugPanel() {
 
   useEffect(() => {
     // Only render panel logic if explicitly running a dev process
-    if (process.env.NODE_ENV === 'development') {
-      setEnvDev(true);
-    }
+    setEnvDev(process.env.NODE_ENV === 'development');
   }, []);
 
   if (!envDev || !debugMode) return null;
