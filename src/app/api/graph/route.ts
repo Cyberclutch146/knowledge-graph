@@ -70,54 +70,59 @@ export async function POST(req: Request) {
       finalTitle = topNodes ? `Architecture: ${topNodes}` : 'Untitled Network';
     }
 
-    // 5. DB Transaction mapping
-    console.log('[API] Opening DB Transaction mappings');
-    const result = await prisma.$transaction(async (tx) => {
-      const graph = await tx.graph.create({
-        data: { title: finalTitle }
-      });
+    // 5. Pre-compute UUIDs and payloads before transaction starts
+    const graphId = crypto.randomUUID();
 
-      // Insert Nodes explicitly calculating deterministic UUIDs mapped inside memory
-      const nodesData = cleanGraph.nodes.map(n => ({
-        id: crypto.createHash('sha256').update(`${graph.id}_${n.label}`).digest('hex').substring(0, 24),
-        label: n.label,
-        type: n.type,
-        graphId: graph.id
-      }));
+    const nodesData = cleanGraph.nodes.map(n => ({
+      id: crypto.createHash('sha256').update(`${graphId}_${n.label}`).digest('hex').substring(0, 24),
+      label: n.label,
+      type: n.type,
+      graphId: graphId
+    }));
+
+    const edgesData = cleanGraph.edges.map(e => {
+      const sourceLabel = e[0];
+      const labelSafe = e[1].toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
+      const targetLabel = e[2];
+
+      const sId = nodesData.find(n => n.label === sourceLabel)?.id;
+      const tId = nodesData.find(n => n.label === targetLabel)?.id;
+      if (!sId || !tId) return null;
+
+      const detId = `${sId}-${labelSafe}-${tId}`.substring(0, 30);
+      
+      return {
+        id: detId,
+        source: sId,
+        target: tId,
+        label: e[1],
+        graphId: graphId
+      };
+    }).filter(Boolean) as Array<{ id: string, source: string, target: string, label: string, graphId: string }>;
+
+    // 6. DB Transaction Execution
+    console.log('[API] Opening DB Transaction mappings');
+    const txStart = Date.now();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await prisma.$transaction(async (tx: any) => {
+      const graph = await tx.graph.create({
+        data: { id: graphId, title: finalTitle }
+      });
 
       await tx.node.createMany({
         data: nodesData,
         skipDuplicates: true
       });
 
-      // Deterministic edges guaranteeing DB rejection of duplicates
-      const edgesData = cleanGraph.edges.map(e => {
-        const sourceLabel = e[0];
-        const labelSafe = e[1].toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
-        const targetLabel = e[2];
-
-        // Find IDs assigned locally a step prior
-        const sId = nodesData.find(n => n.label === sourceLabel)?.id;
-        const tId = nodesData.find(n => n.label === targetLabel)?.id;
-        if (!sId || !tId) return null;
-
-        const detId = `${sId}-${labelSafe}-${tId}`.substring(0, 30);
-        
-        return {
-          id: detId,
-          source: sId,
-          target: tId,
-          label: e[1],
-          graphId: graph.id
-        };
-      }).filter(Boolean) as Array<{ id: string, source: string, target: string, label: string, graphId: string }>;
-
       await tx.edge.createMany({
         data: edgesData,
         skipDuplicates: true
       });
 
-      console.log('[API] DB Transaction Complete successfully');
+      const dbTime = Date.now() - txStart;
+      console.log(`[API] DB Transaction Complete successfully in ${dbTime}ms`);
+      if (dbTime > 500) console.warn(`[API] Slow transaction detected: ${dbTime}ms`);
+
       return {
         graphId: graph.id,
         title: graph.title,
@@ -126,7 +131,7 @@ export async function POST(req: Request) {
       };
     });
 
-    // 6. Return Standardized Struct
+    // 7. Return Standardized Struct
     return Response.json({
       success: true,
       data: {

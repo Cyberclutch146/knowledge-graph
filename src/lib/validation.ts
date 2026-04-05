@@ -1,4 +1,4 @@
-import { GraphOutput } from './types';
+import { GraphOutput } from './graphEngine';
 
 export function parseAIOutput(rawOutput: string): GraphOutput {
   try {

@@ -71,6 +71,7 @@ ${text}`;
   return output;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function expandNodeFromContext(nodeLabel: string, existingNodes: string[], _existingEdges: string[]): Promise<string> {
   const prompt = `[Prompt v2 - Expansion]
 You are a strict data extractor. Expand the knowledge graph by identifying exactly 5-7 NEW tightly related concepts surrounding "${nodeLabel}".

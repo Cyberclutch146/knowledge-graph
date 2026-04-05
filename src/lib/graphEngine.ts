@@ -1,4 +1,5 @@
-import { GraphOutput, NodeOutput } from './types';
+export type NodeOutput = { label: string; type: string };
+export type GraphOutput = { title?: string; nodes: NodeOutput[]; edges: [string, string, string][] };
 
 export function normalizeNodeStr(node: string): string {
   return node.trim().toLowerCase();
