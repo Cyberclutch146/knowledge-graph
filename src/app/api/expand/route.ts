@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     let body;
     try {
       body = await req.json();
-    } catch (parseErr) {
+    } catch {
       return Response.json({ success: false, error: 'Invalid JSON request body' }, { status: 400 });
     }
 
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
     const allowedLabels = new Set([...existingNodes, ...parsedGraph.nodes.map(n => n.label)]);
 
-    const mappedNodes = parsedGraph.nodes.slice(0, 7).map((n, i) => ({ 
+    const mappedNodes = parsedGraph.nodes.slice(0, 7).map((n) => ({ 
       id: `ext_${crypto.randomBytes(8).toString('hex')}`, 
       label: n.label, 
       type: n.type,
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       }
     });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('API /api/expand ERROR:', err);
     return Response.json({ 
       success: false, 

@@ -1,6 +1,12 @@
 import dagre from 'dagre';
 
-export function getLayoutedElements(nodes: any[], edges: any[], direction = 'LR') {
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getLayoutedElements = <T extends { id: string }, E extends { source: string, target: string }>(
+  nodes: T[], 
+  edges: E[], 
+  direction: 'TB' | 'LR' = 'TB'
+) => {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
 
@@ -28,8 +34,8 @@ export function getLayoutedElements(nodes: any[], edges: any[], direction = 'LR'
     const nodeWithPosition = dagreGraph.node(node.id);
     return {
       ...node,
-      targetPosition: direction === 'LR' ? 'left' : 'top',
-      sourcePosition: direction === 'LR' ? 'right' : 'bottom',
+      targetPosition: (direction === 'LR' ? 'left' : 'top') as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+      sourcePosition: (direction === 'LR' ? 'right' : 'bottom') as any, // eslint-disable-line @typescript-eslint/no-explicit-any
       position: {
         x: nodeWithPosition.x - 160 / 2, // Centering
         y: nodeWithPosition.y - 60 / 2,

@@ -24,9 +24,9 @@ async function fetchWithTimeoutAndRetry(prompt: string, isRetry = false): Promis
     JSON.parse(cleaned);
     
     return result;
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (!isRetry) {
-      console.warn(`AI generation failed (${err.message}). Retrying once tightly...`);
+      console.warn(`AI generation failed. Retrying once tightly...`);
       return fetchWithTimeoutAndRetry(prompt + "\n\nCRITICAL ERROR LAST ATTEMPT: You MUST return ONLY valid JSON. No conversational text, no markdown. Start strictly with { and end with }.", true);
     }
     throw err;
@@ -71,7 +71,7 @@ ${text}`;
   return output;
 }
 
-export async function expandNodeFromContext(nodeLabel: string, existingNodes: string[], existingEdges: string[]): Promise<string> {
+export async function expandNodeFromContext(nodeLabel: string, existingNodes: string[], _existingEdges: string[]): Promise<string> {
   const prompt = `[Prompt v2 - Expansion]
 You are a strict data extractor. Expand the knowledge graph by identifying exactly 5-7 NEW tightly related concepts surrounding "${nodeLabel}".
 Rules:

@@ -1,7 +1,7 @@
 'use client';
 
 import { useGraphStore } from '@/store/useGraphStore';
-import { TerminalSquare, Trash2, X } from 'lucide-react';
+import { TerminalSquare, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function DebugPanel() {
@@ -9,7 +9,7 @@ export default function DebugPanel() {
   const [envDev, setEnvDev] = useState(false);
 
   useEffect(() => {
-    // Only render panel logic if explicitly running a dev process
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEnvDev(process.env.NODE_ENV === 'development');
   }, []);
 

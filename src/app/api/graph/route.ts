@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     let body;
     try {
       body = await req.json();
-    } catch (parseErr) {
+    } catch {
       return Response.json({ success: false, error: 'Invalid JSON request body' }, { status: 400 });
     }
 
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
 
     // 5. DB Transaction mapping
     console.log('[API] Opening DB Transaction mappings');
-    const result = await prisma.$transaction(async (tx: any) => {
+    const result = await prisma.$transaction(async (tx) => {
       const graph = await tx.graph.create({
         data: { title: finalTitle }
       });
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
           label: e[1],
           graphId: graph.id
         };
-      }).filter(Boolean) as any[];
+      }).filter(Boolean) as Array<{ id: string, source: string, target: string, label: string, graphId: string }>;
 
       await tx.edge.createMany({
         data: edgesData,
@@ -135,7 +135,7 @@ export async function POST(req: Request) {
       }
     });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('API /api/graph ERROR:', err);
     return Response.json({ 
       success: false, 

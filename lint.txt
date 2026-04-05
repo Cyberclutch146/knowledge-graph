@@ -1,0 +1,61 @@
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\app\api\expand\route.ts
+16:@typescript-eslint/no-unused-vars 'parseErr' is defined but never used.
+40:@typescript-eslint/no-unused-vars 'i' is defined but never used.
+77:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\app\api\graph\route.ts
+32:@typescript-eslint/no-unused-vars 'parseErr' is defined but never used.
+75:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+113:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+138:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\app\api\graphs\[id]\route.ts
+17:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+24:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+41:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\app\api\graphs\route.ts
+36:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\app\graphs\page.tsx
+34:@typescript-eslint/no-unused-vars 'e' is defined but never used.
+62:@typescript-eslint/no-unused-vars 'e' is defined but never used.
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\components\DebugPanel.tsx
+4:@typescript-eslint/no-unused-vars 'Trash2' is defined but never used.
+13:react-hooks/set-state-in-effect Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\blazi\Downloads\Knowledge graph\src\components\DebugPanel.tsx:13:5
+  11 |   useEffect(() => {
+  12 |     // Only render panel logic if explicitly running a dev process
+> 13 |     setEnvDev(process.env.NODE_ENV === 'development');
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |   }, []);
+  15 |
+  16 |   if (!envDev || !debugMode) return null;
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\components\GraphCanvas.tsx
+14:@typescript-eslint/no-unused-vars 'useReactFlow' is defined but never used.
+159:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\components\dashboard\AiAssistantCard.tsx
+39:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\lib\ai.ts
+27:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+74:@typescript-eslint/no-unused-vars 'existingEdges' is defined but never used.
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\lib\layoutEngine.ts
+3:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+3:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.
+
+FILE: C:\Users\blazi\Downloads\Knowledge graph\src\store\useGraphStore.ts
+85:@typescript-eslint/no-unused-vars 'parseErr' is defined but never used.
+105:@typescript-eslint/no-explicit-any Unexpected any. Specify a different type.

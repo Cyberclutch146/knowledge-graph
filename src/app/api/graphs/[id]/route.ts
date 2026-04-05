@@ -14,14 +14,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     if (!graph) return Response.json({ success: false, error: 'Graph not found' }, { status: 404 });
 
-    const nodes = graph.nodes.map((n: any) => ({
+    const nodes = graph.nodes.map((n: { id: string; label: string; type: string; graphId: string }) => ({
       id: n.id,
       label: n.label,
       type: n.type,
       graphId: n.graphId
     }));
 
-    const edges = graph.edges.map((e: any) => ({
+    const edges = graph.edges.map((e: { id: string; source: string; target: string; label: string; graphId: string }) => ({
       id: e.id,
       source: e.source,
       target: e.target,
@@ -38,7 +38,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       }
     });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('API /graphs/[id] error:', err);
     return Response.json({ 
       success: false, 

@@ -11,7 +11,6 @@ import {
   MarkerType,
   BackgroundVariant,
   Panel,
-  useReactFlow,
   ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -156,7 +155,7 @@ function CanvasCore() {
         <Controls className="bg-zinc-900 border-zinc-800 fill-zinc-400 shadow-2xl" />
         
         <MiniMap 
-          nodeColor={(n: any) => {
+          nodeColor={(n: { data?: { type?: string } }) => {
             const t = n.data?.type;
             if(t === 'system') return '#3b82f6';
             if(t === 'concept') return '#10b981';

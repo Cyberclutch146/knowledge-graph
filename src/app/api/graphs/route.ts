@@ -33,11 +33,11 @@ export async function GET(req: Request) {
         }
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('API /graphs error:', err);
     return Response.json({ 
       success: false, 
-      error: err instanceof Error ? err.message : 'Unknown error reading graphs' 
+      error: err instanceof Error ? err.message : 'Unknown error listing graphs' 
     }, { status: 500 });
   }
 }

@@ -31,7 +31,7 @@ export default function SavedGraphs() {
         let parsed;
         try {
           parsed = JSON.parse(raw);
-        } catch (e) {
+        } catch {
           console.error("Invalid JSON response fetching graphs:", raw);
           return;
         }
@@ -59,7 +59,7 @@ export default function SavedGraphs() {
       let parsed;
       try {
         parsed = JSON.parse(raw);
-      } catch (e) {
+      } catch {
         console.error("Invalid JSON response fetching graph by ID:", raw);
         throw new Error("Server returned invalid response");
       }

@@ -21,9 +21,9 @@ export function parseAIOutput(rawOutput: string): GraphOutput {
     // Dedup nodes by label
     const seenNodeLabels = new Set<string>();
     const nodes = parsed.nodes
-      .filter((n: any) => typeof n === 'object' && n !== null && typeof n.label === 'string' && typeof n.type === 'string')
-      .filter((n: any) => {
-        const lowerLabel = n.label.toLowerCase();
+      .filter((n: unknown) => typeof n === 'object' && n !== null && typeof (n as Record<string, unknown>).label === 'string' && typeof (n as Record<string, unknown>).type === 'string')
+      .filter((n: unknown) => {
+        const lowerLabel = ((n as Record<string, unknown>).label as string).toLowerCase();
         if (seenNodeLabels.has(lowerLabel)) return false;
         seenNodeLabels.add(lowerLabel);
         return true;
@@ -31,15 +31,19 @@ export function parseAIOutput(rawOutput: string): GraphOutput {
       .slice(0, 15); // Enforce max 15 nodes limit
     
     // Collect allowed labels to drop disconnected edges safely
-    const allowedLabels = new Set(nodes.map((n: any) => n.label.toLowerCase()));
+    const allowedLabels = new Set(nodes.map((n: unknown) => ((n as Record<string, unknown>).label as string).toLowerCase()));
 
     // Dedup edges by exact source-label-target signature
     const seenEdgeSigs = new Set<string>();
     const edges = parsed.edges
-      .filter((e: any) => Array.isArray(e) && e.length === 3 && e.every((part: any) => typeof part === 'string'))
-      .filter((e: any) => allowedLabels.has(e[0].toLowerCase()) && allowedLabels.has(e[2].toLowerCase()))
-      .filter((e: any) => {
-        const sig = `${e[0].toLowerCase()}|${e[1].toLowerCase()}|${e[2].toLowerCase()}`;
+      .filter((e: unknown) => Array.isArray(e) && e.length === 3 && e.every((part: unknown) => typeof part === 'string'))
+      .filter((e: unknown) => {
+        const arr = e as string[];
+        return allowedLabels.has(arr[0].toLowerCase()) && allowedLabels.has(arr[2].toLowerCase());
+      })
+      .filter((e: unknown) => {
+        const arr = e as string[];
+        const sig = `${arr[0].toLowerCase()}|${arr[1].toLowerCase()}|${arr[2].toLowerCase()}`;
         if (seenEdgeSigs.has(sig)) return false;
         seenEdgeSigs.add(sig);
         return true;
@@ -50,8 +54,8 @@ export function parseAIOutput(rawOutput: string): GraphOutput {
       nodes, 
       edges 
     };
-  } catch (error: any) {
-    console.error('[VALIDATION ERROR] Failed to parse AI output:', error.message);
+  } catch (error: unknown) {
+    console.error('[VALIDATION ERROR] Failed to parse AI output:', error instanceof Error ? error.message : error);
     return {
       title: "Fallback Graph",
       nodes: [

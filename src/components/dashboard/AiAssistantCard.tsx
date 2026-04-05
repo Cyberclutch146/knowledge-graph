@@ -36,8 +36,8 @@ export default function AiAssistantCard() {
       
       const { title, nodes, edges, _debugRaw } = parsed.data;
       setGraph(title, nodes, edges, _debugRaw);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }

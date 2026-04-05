@@ -82,7 +82,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
       let parsed;
       try {
         parsed = JSON.parse(raw);
-      } catch (parseErr) {
+      } catch {
         console.error("Invalid JSON expanding response:", raw);
         throw new Error("Server returned invalid response (not JSON)");
       }
@@ -102,8 +102,8 @@ export const useGraphStore = create<GraphState>((set, get) => ({
         loading: false,
         debugLogs: data._debugRaw ? [...state.debugLogs, `[EXPAND]\n${data._debugRaw}`] : state.debugLogs
       });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: unknown) {
+      set({ error: error instanceof Error ? error.message : 'Unknown error', loading: false });
     }
   }
 }));
